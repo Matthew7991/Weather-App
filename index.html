@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="./assets/css/style.css" />
+		<title>Document</title>
+	</head>
+	<body>
+		<main>
+			<section>
+				<article>
+					<input type="text" id="city" name="city" />
+					<button onclick="getWeather()">Show weather</button>
+					<h1>Weather in <span class="name"></span></h1>
+					<p class="weather">
+						<img
+							class="weather-icon"
+							src="https://openweathermap.org/img/wn/10d.png"
+							alt=""
+						/><span class="tempreture"></span>
+					</p>
+					<p class="weather-description"></p>
+					<p class="weather-obtain"></p>
+					<div>
+						<table>
+							<tr>
+								<td>Local Time</td>
+								<td class="local-time"></td>
+							</tr>
+							<tr>
+								<td>Wind</td>
+								<td class="wind"></td>
+							</tr>
+							<tr>
+								<td>Cloudiness</td>
+								<td class="cloudiness"></td>
+							</tr>
+							<tr>
+								<td>Pressure</td>
+								<td class="pressure"></td>
+							</tr>
+							<tr>
+								<td>Humidity</td>
+								<td class="humidity"></td>
+							</tr>
+							<tr>
+								<td>Sunrise</td>
+								<td class="sunrise"></td>
+							</tr>
+							<tr>
+								<td>Sunset</td>
+								<td class="sunset"></td>
+							</tr>
+							<tr>
+								<td>Geo coords</td>
+								<td class="geo-coords"></td>
+							</tr>
+						</table>
+					</div>
+				</article>
+			</section>
+		</main>
+
+		<script src="./assets/js/main.js"></script>
+	</body>
+</html>
