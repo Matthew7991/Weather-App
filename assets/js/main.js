@@ -35,25 +35,33 @@ function getWeather() {
     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=f3d1da0ea9111723536a1969023bbeef`)
       .then(response => response.json())
       .then(curWeather => {
+        console.log(curWeather)
         name.textContent = curWeather.name
         weatherIcon.setAttribute("src", `https://openweathermap.org/img/wn/${curWeather.weather[0].icon}.png`)
         tempreture.textContent = `${curWeather.main.temp.toFixed(1)} °C`
         description.textContent = curWeather.weather[0].description
         const dt = new Date(curWeather.dt * 1000)
-        const dtDateUTC = dt.toLocaleString(undefined, {timeZone: "UTC", day:"2-digit", month:"short", year:"numeric", timeZoneName:"long"})
-        const dtDateLocale = dt.toLocaleString(undefined, {day:"2-digit", month:"short", year:"numeric"})
-        const dtTimeUTC = dt.toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
-        const dtTimeLocale = dt.toLocaleString(undefined, {hour12:false, hour:"2-digit", minute:"2-digit"})
-        obtainTime.textContent = `Obtained at ${dtTimeUTC}, ${dtDateUTC}`
-        localTime.textContent = `${dtTimeLocale}, ${dtDateLocale}`
+        const dtDateLocation = new Date(Date.now() + curWeather.timezone * 1000).toLocaleString(undefined, {timeZone: "UTC", day:"2-digit", month:"short", year:"numeric"})
+        const dtDateUser = dt.toLocaleString(undefined, {day:"2-digit", month:"short", year:"numeric"})
+        const dtTimeLocation = new Date(Date.now() + curWeather.timezone * 1000).toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
+        const dtTimeUser = dt.toLocaleString(undefined, {hour12:false, hour:"2-digit", minute:"2-digit"})
+        obtainTime.textContent = `Obtained at ${dtTimeUser}, ${dtDateUser}`
+        localTime.textContent = `${dtTimeLocation}, ${dtDateLocation}`
         wind.textContent = `${curWeather.wind.speed} m/s`
         cloudiness.textContent = curWeather.weather[0].description
         pressure.textContent = `${curWeather.main.pressure} hPA`
         humidity.textContent = `${curWeather.main.humidity} %`
-        sunrise.textContent = new Date(curWeather.sys.sunrise * 1000).toLocaleString(undefined, {hour12:false, hour:"2-digit", minute:"2-digit"})
-        sunset.textContent = new Date(curWeather.sys.sunset * 1000).toLocaleString(undefined, {hour12:false, hour:"2-digit", minute:"2-digit"})
+        sunrise.textContent = new Date((curWeather.sys.sunrise + curWeather.timezone) * 1000).toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
+        sunset.textContent = new Date((curWeather.sys.sunset + curWeather.timezone) * 1000).toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
         geoCoords.textContent = `[${curWeather.coord.lon.toFixed(2)}, ${curWeather.coord.lat.toFixed(2)}]`
       })
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=f3d1da0ea9111723536a1969023bbeef&units=metric`)
+      .then(response => {
+        if (!response.ok) {
+          new Error("responese not ok")
+        }
+        return response.json()})
+        .then(data5day => console.log(data5day))
   })
     .catch(error => console.log(error))
 }
