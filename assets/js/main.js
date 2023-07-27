@@ -1,5 +1,6 @@
 "use strict";
-// .weather-obtain is ts
+
+import { apiKey } from "./api.js";
 
 const cityInput = document.querySelector("#city")
 const name = document.querySelector(".name")
@@ -22,17 +23,17 @@ function getWeather() {
   }
   let lat
   let lon
-  fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityInput.value}&limit=1&appid=f3d1da0ea9111723536a1969023bbeef`)
+  fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityInput.value}&limit=1&appid=${apiKey}`)
   .then(response => {
     if (!response.ok) {
       new Error("responese not ok")
     }
     return response.json()})
-  .then(data => {
-    console.log(data)
-    lat = data[0].lat
-    lon = data[0].lon
-    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=f3d1da0ea9111723536a1969023bbeef`)
+    .then(data => {
+      // console.log(data)
+      lat = data[0].lat
+      lon = data[0].lon
+      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`)
       .then(response => response.json())
       .then(curWeather => {
         console.log(curWeather)
@@ -55,13 +56,23 @@ function getWeather() {
         sunset.textContent = new Date((curWeather.sys.sunset + curWeather.timezone) * 1000).toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
         geoCoords.textContent = `[${curWeather.coord.lon.toFixed(2)}, ${curWeather.coord.lat.toFixed(2)}]`
       })
-    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=f3d1da0ea9111723536a1969023bbeef&units=metric`)
-      .then(response => {
-        if (!response.ok) {
-          new Error("responese not ok")
-        }
-        return response.json()})
-        .then(data5day => console.log(data5day))
-  })
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
+    .then(response => {
+      if (!response.ok) {
+        new Error("responese not ok")
+      }
+      return response.json()})
+      // .then(data5day => console.log(data5day))
+    })
     .catch(error => console.log(error))
-}
+  }
+  
+  document.querySelector("#weather").addEventListener("click", getWeather)
+  // 1 general infos 
+  // City; infos created at dt
+  // 2 Day Info
+  // heading with date weekday monthDay month
+  // 3 every 3 hour information
+  // UserTime °C light rain wind humidity
+  // repeat 3 till end of day
+  // repeat from 2 till no data left
