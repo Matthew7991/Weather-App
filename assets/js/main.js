@@ -32,7 +32,6 @@ function getGeoLocation() {
     .catch(error => console.log(error))
 }
 
-
 async function getWeatherCurrent() {
   const { lat, lon } = await getGeoLocation()
 
