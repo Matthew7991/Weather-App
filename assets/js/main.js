@@ -8,8 +8,8 @@ const weatherArticle = document.querySelector(".weather")
 const weatherForecast = document.querySelector(".weather-forecast")
 
 const secondsToMs = 1000
-const dateFormatDateUTC = {timeZone: "UTC", day:"2-digit", month:"short", year:"numeric"}
-const dateFormatTimeUTC = {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"}
+const dateFormatDateUTC = { timeZone: "UTC", day: "2-digit", month: "short", year: "numeric" }
+const dateFormatTimeUTC = { timeZone: "UTC", hour12: false, hour: "2-digit", minute: "2-digit" }
 
 function getWeather() {
   if (!cityInput.value) return
@@ -17,7 +17,7 @@ function getWeather() {
   let lat
   let lon
 
-// ? Geo location API
+  // ? Geo location API
   fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityInput.value}&limit=1&appid=${apiKey}`)
     .then(response => {
       if (!response.ok) {
@@ -30,7 +30,7 @@ function getWeather() {
       lat = data[0].lat
       lon = data[0].lon
 
-// ? Current Weather API
+      // ? Current Weather API
       fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`)
         .then(response => response.json())
 
@@ -39,9 +39,9 @@ function getWeather() {
           const timezone = curWeather.timezone
 
           const dtDateLocation = new Date(Date.now() + timezone * secondsToMs).toLocaleString(undefined, dateFormatDateUTC)
-          const dtDateUser = dt.toLocaleString(undefined, {day:"2-digit", month:"short", year:"numeric"})
           const dtTimeLocation = new Date(Date.now() + timezone * secondsToMs).toLocaleString(undefined, dateFormatTimeUTC)
-          const dtTimeUser = dt.toLocaleString(undefined, {hour12:false, hour:"2-digit", minute:"2-digit"})
+          const dtDateUser = dt.toLocaleString(undefined, { day: "2-digit", month: "short", year: "numeric" })
+          const dtTimeUser = dt.toLocaleString(undefined, { hour12: false, hour: "2-digit", minute: "2-digit" })
           const sunriseTimeLocal = new Date((curWeather.sys.sunrise + timezone) * secondsToMs).toLocaleString(undefined, dateFormatTimeUTC)
           const sunsetTimeLocal = new Date((curWeather.sys.sunset + timezone) * secondsToMs).toLocaleString(undefined, dateFormatTimeUTC)
 
@@ -66,13 +66,14 @@ function getWeather() {
           weatherArticle.insertAdjacentHTML("beforeend", currentWeatherHTML)
         })
 
-// ? Forecast API
+      // ? Forecast API
       fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
         .then(response => {
           if (!response.ok) {
             new Error("responese not ok")
           }
-          return response.json()})
+          return response.json()
+        })
 
         .then(data5day => {
           let dayInfo = ""
@@ -92,10 +93,11 @@ function getWeather() {
             <p>Humidity ${weather3Hour.main.humidity}</p>
             </div>
             `;
+
             if (dayDate.getUTCHours() == 0 || index == weather3Hour.length - 1) {
               weatherForecast.insertAdjacentHTML("afterbegin", `
                 <div class="forecast-day">
-                <h3>${dayDate.toLocaleString(undefined, {timeZone: "UTC", day:"2-digit", month:"short", year:"2-digit"})}</h3>
+                <h3>${dayDate.toLocaleString(undefined, { timeZone: "UTC", day: "2-digit", month: "short", year: "2-digit" })}</h3>
                 </div>
                 `)
               document.querySelector(".forecast-day").insertAdjacentHTML("beforeend", dayInfo)
@@ -104,9 +106,9 @@ function getWeather() {
           })
           weatherForecast.setAttribute("style", "display: flex; flex-direction: column-reverse;")
         })
-      })
+    })
 
     .catch(error => console.log(error))
-  }
+}
 
 weatherButton.addEventListener("click", getWeather)
