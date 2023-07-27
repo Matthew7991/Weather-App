@@ -2,77 +2,111 @@
 
 import { apiKey } from "./api.js";
 
+const weatherButton = document.querySelector("#get-weather")
 const cityInput = document.querySelector("#city")
-const name = document.querySelector(".name")
-const weatherIcon = document.querySelector(".weather-icon")
-const tempreture = document.querySelector(".tempreture")
-const description = document.querySelector(".weather-description")
-const obtainTime = document.querySelector(".weather-obtain")
-const localTime = document.querySelector(".local-time")
-const wind = document.querySelector(".wind")
-const cloudiness = document.querySelector(".cloudiness")
-const pressure = document.querySelector(".pressure")
-const humidity = document.querySelector(".humidity")
-const sunrise = document.querySelector(".sunrise")
-const sunset = document.querySelector(".sunset")
-const geoCoords = document.querySelector(".geo-coords")
+const weatherArticle = document.querySelector(".weather")
+const weatherForecast = document.querySelector(".weather-forecast")
+
+const secondsToMs = 1000
+const dateFormatDateUTC = {timeZone: "UTC", day:"2-digit", month:"short", year:"numeric"}
+const dateFormatTimeUTC = {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"}
 
 function getWeather() {
-  if (!cityInput.value) {
-    return
-  }
+  if (!cityInput.value) return
+
   let lat
   let lon
+
+// ? Geo location API
   fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${cityInput.value}&limit=1&appid=${apiKey}`)
-  .then(response => {
-    if (!response.ok) {
-      new Error("responese not ok")
-    }
-    return response.json()})
-    .then(data => {
-      // console.log(data)
-      lat = data[0].lat
-      lon = data[0].lon
-      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`)
-      .then(response => response.json())
-      .then(curWeather => {
-        console.log(curWeather)
-        name.textContent = curWeather.name
-        weatherIcon.setAttribute("src", `https://openweathermap.org/img/wn/${curWeather.weather[0].icon}.png`)
-        tempreture.textContent = `${curWeather.main.temp.toFixed(1)} °C`
-        description.textContent = curWeather.weather[0].description
-        const dt = new Date(curWeather.dt * 1000)
-        const dtDateLocation = new Date(Date.now() + curWeather.timezone * 1000).toLocaleString(undefined, {timeZone: "UTC", day:"2-digit", month:"short", year:"numeric"})
-        const dtDateUser = dt.toLocaleString(undefined, {day:"2-digit", month:"short", year:"numeric"})
-        const dtTimeLocation = new Date(Date.now() + curWeather.timezone * 1000).toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
-        const dtTimeUser = dt.toLocaleString(undefined, {hour12:false, hour:"2-digit", minute:"2-digit"})
-        obtainTime.textContent = `Obtained at ${dtTimeUser}, ${dtDateUser}`
-        localTime.textContent = `${dtTimeLocation}, ${dtDateLocation}`
-        wind.textContent = `${curWeather.wind.speed} m/s`
-        cloudiness.textContent = curWeather.weather[0].description
-        pressure.textContent = `${curWeather.main.pressure} hPA`
-        humidity.textContent = `${curWeather.main.humidity} %`
-        sunrise.textContent = new Date((curWeather.sys.sunrise + curWeather.timezone) * 1000).toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
-        sunset.textContent = new Date((curWeather.sys.sunset + curWeather.timezone) * 1000).toLocaleString(undefined, {timeZone: "UTC", hour12:false, hour:"2-digit", minute:"2-digit"})
-        geoCoords.textContent = `[${curWeather.coord.lon.toFixed(2)}, ${curWeather.coord.lat.toFixed(2)}]`
-      })
-    fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
     .then(response => {
       if (!response.ok) {
         new Error("responese not ok")
       }
-      return response.json()})
-      // .then(data5day => console.log(data5day))
+      return response.json()
     })
+
+    .then(data => {
+      lat = data[0].lat
+      lon = data[0].lon
+
+// ? Current Weather API
+      fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`)
+        .then(response => response.json())
+
+        .then(curWeather => {
+          const dt = new Date(curWeather.dt * secondsToMs)
+          const timezone = curWeather.timezone
+
+          const dtDateLocation = new Date(Date.now() + timezone * secondsToMs).toLocaleString(undefined, dateFormatDateUTC)
+          const dtDateUser = dt.toLocaleString(undefined, {day:"2-digit", month:"short", year:"numeric"})
+          const dtTimeLocation = new Date(Date.now() + timezone * secondsToMs).toLocaleString(undefined, dateFormatTimeUTC)
+          const dtTimeUser = dt.toLocaleString(undefined, {hour12:false, hour:"2-digit", minute:"2-digit"})
+          const sunriseTimeLocal = new Date((curWeather.sys.sunrise + timezone) * secondsToMs).toLocaleString(undefined, dateFormatTimeUTC)
+          const sunsetTimeLocal = new Date((curWeather.sys.sunset + timezone) * secondsToMs).toLocaleString(undefined, dateFormatTimeUTC)
+
+          const currentWeatherHTML = `
+          <h1>Weather in <span class="name">${curWeather.name}</span></h1>
+          <p>
+            <imgsrc=${`https://openweathermap.org/img/wn/${curWeather.weather[0].icon}.png`} alt="" /> <span>${curWeather.main.temp.toFixed(1)} °C</span>
+          </p>
+          <p>${curWeather.weather[0].description}</p>
+          <p>Obtained at ${dtTimeUser}, ${dtDateUser}</p>
+          <div>
+          <p>Local Time ${dtTimeLocation}, ${dtDateLocation}</p>
+          <p>Wind ${curWeather.wind.speed} m/s</p>
+          <p>Cloudiness ${curWeather.weather[0].description}</p>
+          <p>Pressure ${curWeather.main.pressure} hPA</p>
+          <p>Humidity ${curWeather.main.humidity} %</p>
+          <p>Sunrise ${sunriseTimeLocal}</p>
+          <p>Sunset ${sunsetTimeLocal}</p>
+          <p>Geo coords [${curWeather.coord.lon.toFixed(2)}, ${curWeather.coord.lat.toFixed(2)}]</p>
+          </div>
+          `
+          weatherArticle.insertAdjacentHTML("beforeend", currentWeatherHTML)
+        })
+
+// ? Forecast API
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`)
+        .then(response => {
+          if (!response.ok) {
+            new Error("responese not ok")
+          }
+          return response.json()})
+
+        .then(data5day => {
+          let dayInfo = ""
+
+          weatherForecast.insertAdjacentHTML("afterbegin", `<div>
+          <h3>${data5day.city.name} weather forecast<h3>
+          </div>`)
+
+          data5day.list.forEach((weather3Hour, index) => {
+            const dayDate = new Date(weather3Hour.dt * 1000)
+            dayInfo += `
+            <div class="forecast-hours">
+            <p>Time ${dayDate.toLocaleString(undefined, dateFormatTimeUTC)}</p>
+            <p>Temprature ${weather3Hour.main.temp.toFixed(1)}</p>
+            <p>${weather3Hour.weather[0].description}</p>
+            <p>Wind ${weather3Hour.wind.speed}</p>
+            <p>Humidity ${weather3Hour.main.humidity}</p>
+            </div>
+            `;
+            if (dayDate.getUTCHours() == 0 || index == weather3Hour.length - 1) {
+              weatherForecast.insertAdjacentHTML("afterbegin", `
+                <div class="forecast-day">
+                <h3>${dayDate.toLocaleString(undefined, {timeZone: "UTC", day:"2-digit", month:"short", year:"2-digit"})}</h3>
+                </div>
+                `)
+              document.querySelector(".forecast-day").insertAdjacentHTML("beforeend", dayInfo)
+              dayInfo = ""
+            }
+          })
+          weatherForecast.setAttribute("style", "display: flex; flex-direction: column-reverse;")
+        })
+      })
+
     .catch(error => console.log(error))
   }
-  
-  document.querySelector("#weather").addEventListener("click", getWeather)
-  // 1 general infos 
-  // City; infos created at dt
-  // 2 Day Info
-  // heading with date weekday monthDay month
-  // 3 every 3 hour information
-  // UserTime °C light rain wind humidity
-  // repeat 3 till end of day
-  // repeat from 2 till no data left
+
+weatherButton.addEventListener("click", getWeather)
