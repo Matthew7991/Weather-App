@@ -4,7 +4,7 @@ import { apiKey } from "./api.js";
 
 const weatherButton = document.querySelector("#get-weather")
 const cityInput = document.querySelector("#city")
-const weatherArticle = document.querySelector(".weather")
+const weatherCurrent = document.querySelector(".current-weather")
 const weatherForecast = document.querySelector(".weather-forecast")
 
 const secondsToMs = 1000
@@ -63,7 +63,8 @@ function getWeather() {
           <p>Geo coords [${curWeather.coord.lon.toFixed(2)}, ${curWeather.coord.lat.toFixed(2)}]</p>
           </div>
           `
-          weatherArticle.insertAdjacentHTML("beforeend", currentWeatherHTML)
+          weatherCurrent.innerHTML = ""
+          weatherCurrent.insertAdjacentHTML("beforeend", currentWeatherHTML)
         })
 
       // ? Forecast API
@@ -77,7 +78,7 @@ function getWeather() {
 
         .then(data5day => {
           let dayInfo = ""
-
+          weatherForecast.innerHTML = ""
           weatherForecast.insertAdjacentHTML("afterbegin", `<div>
           <h3>${data5day.city.name} weather forecast<h3>
           </div>`)
